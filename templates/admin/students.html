@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الطلاب وحساباتهم - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-brand-600">لوحة الإدارة</a> / الطلاب
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">إدارة حسابات وأرصدة الطلاب</h1>
+            <p class="text-xs text-slate-500 mt-0.5">قائمة الطلاب المسجلين بالمنصة، التحكم في تفعيل الحسابات وتعديل أرصدة المحافظ</p>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">اسم الطالب</th>
+                        <th class="py-3 px-4">رقم الهاتف</th>
+                        <th class="py-3 px-4">الشعبة الدراسية</th>
+                        <th class="py-3 px-4">رصيد المحفظة</th>
+                        <th class="py-3 px-4">تاريخ التسجيل</th>
+                        <th class="py-3 px-4">حالة الحساب</th>
+                        <th class="py-3 px-4 text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for student in students %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-400">{{ student.id }}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">{{ student.full_name }}</td>
+                            <td class="py-3.5 px-4 font-mono text-slate-600 font-bold dir-ltr text-right">{{ student.phone }}</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-brand-50 text-brand-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                    {{ student.division }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 font-black text-emerald-600 text-sm">
+                                {{ "%.2f"|format(student.wallet_balance) }} ج.م
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-500 text-xs">
+                                {{ student.created_at }}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if student.is_active %}
+                                    <span class="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[11px] font-bold">نشط</span>
+                                {% else %}
+                                    <span class="bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-[11px] font-bold">معطل</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" onclick="openBalanceModal({{ student.id }}, '{{ student.full_name }}', {{ student.wallet_balance }})"
+                                            class="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-wallet"></i> تعديل الرصيد
+                                    </button>
+                                    <form action="{{ url_for('admin_student_toggle_active', student_id=student.id) }}" method="POST" class="inline">
+                                        <button type="submit" class="px-2.5 py-1.5 {% if student.is_active %}bg-red-50 text-red-600 hover:bg-red-100{% else %}bg-blue-50 text-blue-600 hover:bg-blue-100{% endif %} rounded-lg text-xs font-bold transition">
+                                            {% if student.is_active %}تعطيل{% else %}تنشيط{% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-8 text-slate-400 font-medium">
+                                لا يوجد طلاب مسجلون بعد.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Adjust Balance Modal -->
+<div id="balanceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-wallet text-emerald-600"></i> تعديل رصيد الطالب
+            </h3>
+            <button onclick="closeBalanceModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <p class="text-xs text-slate-500 font-medium">
+            تعديل رصيد الطالب: <span id="modalStudentName" class="font-bold text-slate-900"></span>
+        </p>
+
+        <form id="balanceForm" method="POST" class="space-y-4">
+            <div>
+                <label for="modalAmount" class="block text-xs font-bold text-slate-700 mb-1.5">المبلغ الجديد للرصيد (جنيه مصري)</label>
+                <input type="number" step="0.5" id="modalAmount" name="new_balance" required
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-black outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <div>
+                <label for="modalReason" class="block text-xs font-bold text-slate-700 mb-1.5">سبب التعديل / ملاحظات</label>
+                <input type="text" id="modalReason" name="reason" value="تعديل مباشر من إدارة المنصة"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onclick="closeBalanceModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </button>
+                <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition">
+                    تأكيد وحفظ الرصيد
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openBalanceModal(studentId, name, balance) {
+    document.getElementById('modalStudentName').innerText = name;
+    document.getElementById('modalAmount').value = balance;
+    document.getElementById('balanceForm').action = "/admin/students/" + studentId + "/adjust-balance";
+    document.getElementById('balanceModal').classList.remove('hidden');
+}
+
+function closeBalanceModal() {
+    document.getElementById('balanceModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

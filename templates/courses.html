@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}المناهج والكورسات - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">المناهج والكورسات المتاحة</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">اختر المادة واستكشف الدروس ونماذج الامتحانات المعتمدة</p>
+        </div>
+
+        <!-- Subject Filter Pills -->
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ url_for('courses_list') }}" 
+               class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition {% if not selected_subject %}bg-brand-600 text-white shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+                الكل
+            </a>
+            {% for subj in subjects %}
+                <a href="{{ url_for('courses_list') }}?subject={{ subj }}" 
+                   class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition {% if selected_subject == subj %}bg-brand-600 text-white shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+                    {{ subj }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Student Wallet Active Balance Banner -->
+    {% if session.get('user_id') and session.get('user_role') == 'student' %}
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-4 sm:p-5 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <span class="text-xs text-emerald-100 font-semibold block">المحفظة الإلكترونية جاهزة للدفع الفوري:</span>
+                    <span class="text-lg sm:text-xl font-black">رصيدك المتاح: {{ "%.2f"|format(current_user_wallet) }} ج.م</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <span class="text-xs font-semibold text-emerald-100 hidden md:inline">يتم الخصم وتفعيل الكورس تلقائياً</span>
+                <a href="{{ url_for('wallet_view') }}" class="px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-bold transition shadow shrink-0">
+                    <i class="fa-solid fa-plus-circle ml-1"></i> شحن المحفظة
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Courses Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm card-hover flex flex-col justify-between">
+                <div>
+                    <!-- Header with Gradient and Subject Tag -->
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-600 p-6 text-white relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-white/20 backdrop-blur-md text-xs font-bold px-3 py-1 rounded-full">
+                                {{ course.subject }}
+                            </span>
+                            {% if course.id in enrolled_ids %}
+                                <span class="bg-emerald-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-check"></i> مشترك بالفعل
+                                </span>
+                            {% endif %}
+                        </div>
+                        <h2 class="text-xl font-black leading-snug line-clamp-2">{{ course.title }}</h2>
+                        <span class="text-xs text-brand-100 mt-1 block">{{ course.grade }}</span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="p-6">
+                        <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
+                            {{ course.description or 'شرح مبسط وواضح لجميع وحدات المنهج مع أسئلة تفاعلية وتطبيقات عملية.' }}
+                        </p>
+
+                        <div class="flex items-center gap-4 text-xs text-slate-500 font-semibold">
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-layer-group text-brand-500"></i> {{ course.lessons_count or 0 }} درساً</span>
+                            <span class="flex items-center gap-1"><i class="fa-solid fa-clipboard-check text-emerald-500"></i> اختبارات مرفقة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer & Price -->
+                <div class="p-6 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 block font-medium">سعر الكورس</span>
+                        <span class="text-xl font-black text-slate-900">
+                            {% if course.price > 0 %}
+                                {{ "%.2f"|format(course.price) }} <span class="text-xs text-brand-600 font-bold">ج.م</span>
+                            {% else %}
+                                <span class="text-emerald-600 font-bold">مجاني</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <a href="{{ url_for('course_detail', course_id=course.id) }}" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-brand-500/20 transition">
+                        عرض التفاصيل
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-span-3 text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
+                <p class="text-base font-bold text-slate-700">لا توجد كورسات في هذا القسم حالياً.</p>
+                <a href="{{ url_for('courses_list') }}" class="text-xs font-bold text-brand-600 hover:underline mt-2 inline-block">عرض جميع الأقسام</a>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

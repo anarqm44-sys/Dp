@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}الرئيسية - سهلتهالك بكالوريا للثانوية العامة{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-b from-brand-50 via-white to-slate-50 py-16 md:py-24 overflow-hidden border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Left Text Content -->
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-right">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-100 text-brand-800 text-xs sm:text-sm font-bold border border-brand-200">
+                    <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
+                    دفعة الثانوية العامة 2026 - نظام حديث
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-tight">
+                    طريقك نحو التفوق <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">
+                        في شهادة البكالوريا
+                    </span>
+                </h1>
+
+                <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    منصة تعليمية متكاملة تجمع لك أقوى شروحات المواد الدراسية، بنك أسئلة واختبارات إلكترونية تفاعلية مع تصحيح فوري وتوضيح مفصل لكل سؤال، ومحفظة إلكترونية ذكية لتسهيل الاشتراك في المواد.
+                </p>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                    {% if not session.get('user_id') %}
+                        <a href="{{ url_for('register') }}" class="px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-base font-bold shadow-lg shadow-brand-500/30 transition transform hover:-translate-y-0.5">
+                            <i class="fa-solid fa-rocket ml-2"></i> اشترك مجاناً وابدأ الآن
+                        </a>
+                        <a href="{{ url_for('courses_list') }}" class="px-8 py-3.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-base font-bold transition">
+                            <i class="fa-solid fa-magnifying-glass ml-2 text-slate-400"></i> استكشف المناهج
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('student_dashboard') if session.get('user_role') == 'student' else url_for('admin_dashboard') }}" class="px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-base font-bold shadow-lg shadow-brand-500/30 transition">
+                            <i class="fa-solid fa-gauge ml-2"></i> الانتقال إلى لوحة التحكم
+                        </a>
+                        <a href="{{ url_for('courses_list') }}" class="px-8 py-3.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-base font-bold transition">
+                            <i class="fa-solid fa-book ml-2 text-slate-400"></i> تصفح الكورسات
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Trust Stats -->
+                <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-200">
+                    <div class="text-center lg:text-right">
+                        <span class="block text-2xl sm:text-3xl font-black text-brand-600">+10,000</span>
+                        <span class="text-xs sm:text-sm font-semibold text-slate-500">طالب مسجل</span>
+                    </div>
+                    <div class="text-center lg:text-right">
+                        <span class="block text-2xl sm:text-3xl font-black text-emerald-600">100%</span>
+                        <span class="text-xs sm:text-sm font-semibold text-slate-500">تصحيح فوري ذكي</span>
+                    </div>
+                    <div class="text-center lg:text-right">
+                        <span class="block text-2xl sm:text-3xl font-black text-purple-600">+500</span>
+                        <span class="text-xs sm:text-sm font-semibold text-slate-500">سؤال ونموذج امتحاني</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Graphic / Card -->
+            <div class="lg:col-span-5 relative">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative">
+                    <!-- Floating badge -->
+                    <div class="absolute -top-4 -right-4 bg-emerald-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-check"></i> منصة معتمدة 2026
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-atom"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">سهولة الفهم وضمان الدرجة</h3>
+                                <p class="text-xs text-slate-500">كل ما تحتاجه للثانوية العامة في مكان واحد</p>
+                            </div>
+                        </div>
+
+                        <!-- Mini features list -->
+                        <div class="space-y-3.5 text-sm">
+                            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-circle-check text-brand-600 text-base mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">فيديوهات شرح مركزة وممتعة</h4>
+                                    <p class="text-xs text-slate-500">شروحات منظمة لكل وحدة دراسية مع ملخصات PDF قابلة للتحميل.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-circle-check text-emerald-600 text-base mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">اختبارات إلكترونية مطابقة للنظام الحديث</h4>
+                                    <p class="text-xs text-slate-500">أسئلة اختيار من متعدد وصح وخطأ مع تعليل علمي فوري لكل إجابة.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-circle-check text-indigo-600 text-base mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">نظام محفظة ذكي وسهل</h4>
+                                    <p class="text-xs text-slate-500">شحن سريع عبر فودافون كاش وإنستاباي واشتراك فوري في الكورسات.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA Box inside card -->
+                        <div class="bg-gradient-to-r from-brand-600 to-indigo-600 p-4 rounded-2xl text-white flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-brand-100 font-medium">ابدأ الآن برصيد ترحيبي</p>
+                                <p class="text-sm font-bold">سجل حسابك في دقيقة واحدة</p>
+                            </div>
+                            <a href="{{ url_for('register') }}" class="bg-white text-brand-700 px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-brand-50 transition">
+                                تسجيل سريع
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Subject Categories Section -->
+<section class="py-16 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-3">المواد والمناهج الدراسية</h2>
+            <p class="text-sm sm:text-base text-slate-500">تغطية شاملة لكل التخصصات والشُعب (علمي علوم - علمي رياضة - أدبي)</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Arabic -->
+            <div class="bg-slate-50 border border-slate-200 hover:border-brand-300 rounded-2xl p-6 transition card-hover">
+                <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-4 font-bold">
+                    <i class="fa-solid fa-book-quran"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">اللغة العربية</h3>
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    إتقان النحو والبلاغة والأدب والنصوص والقراءة المتحررة والتعبير بنظام الأسئلة الحديثة.
+                </p>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <span class="text-xs font-bold text-brand-600">شامل المنهج كاملاً</span>
+                    <a href="{{ url_for('courses_list') }}?subject=اللغة العربية" class="text-xs font-bold text-slate-700 hover:text-brand-600 flex items-center gap-1">
+                        عرض الكورسات <i class="fa-solid fa-angle-left"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- English -->
+            <div class="bg-slate-50 border border-slate-200 hover:border-brand-300 rounded-2xl p-6 transition card-hover">
+                <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl mb-4 font-bold">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">اللغة الإنجليزية</h3>
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    قواعد اللغة كاملة (Grammar)، مهارات الكتابة (Writing Skills)، الترجمة، وحل قطع الفهم الصعبة.
+                </p>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <span class="text-xs font-bold text-brand-600">تدريب مكثف</span>
+                    <a href="{{ url_for('courses_list') }}?subject=اللغة الإنجليزية" class="text-xs font-bold text-slate-700 hover:text-brand-600 flex items-center gap-1">
+                        عرض الكورسات <i class="fa-solid fa-angle-left"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="bg-slate-50 border border-slate-200 hover:border-brand-300 rounded-2xl p-6 transition card-hover">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl mb-4 font-bold">
+                    <i class="fa-solid fa-landmark"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">التاريخ والشُعبة الأدبية</h3>
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    فهم عميق للأحداث التاريخية وربط العلاقات والنتائج والخرائط الذهنية وتدريبات على نواتج التعلم.
+                </p>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <span class="text-xs font-bold text-brand-600">خرائط ذهنية ذكية</span>
+                    <a href="{{ url_for('courses_list') }}?subject=التاريخ" class="text-xs font-bold text-slate-700 hover:text-brand-600 flex items-center gap-1">
+                        عرض الكورسات <i class="fa-solid fa-angle-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Courses Section -->
+<section class="py-16 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900">أحدث الكورسات المتاحة</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">ابدأ دراستك الآن مع أفضل البرامج التعليمية المعتمدة</p>
+            </div>
+            <a href="{{ url_for('courses_list') }}" class="px-5 py-2.5 bg-white hover:bg-slate-100 text-brand-600 border border-slate-300 rounded-xl text-sm font-bold transition flex items-center gap-2">
+                <span>تصفح جميع الكورسات</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in courses %}
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm card-hover flex flex-col justify-between">
+                    <div>
+                        <!-- Header banner -->
+                        <div class="h-40 bg-gradient-to-r from-brand-600 to-indigo-600 p-6 flex flex-col justify-between text-white relative">
+                            <span class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold w-fit">
+                                {{ course.subject }}
+                            </span>
+                            <div>
+                                <span class="text-xs text-brand-100 font-medium block">{{ course.grade }}</span>
+                                <h3 class="text-lg font-black line-clamp-2 leading-snug">{{ course.title }}</h3>
+                            </div>
+                        </div>
+
+                        <!-- Body description -->
+                        <div class="p-6">
+                            <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
+                                {{ course.description or 'كورس تدريبي متميز يتضمن شروحات واختبارات تفاعلية وملخصات دراسية لمساعدة الطالب على التفوق.' }}
+                            </p>
+
+                            <div class="flex items-center gap-4 text-xs text-slate-500 font-semibold mb-2">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-play-circle text-brand-500"></i> دروس فيديو</span>
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-red-500"></i> مذكرات PDF</span>
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-check-double text-emerald-500"></i> اختبارات</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Pricing & Link -->
+                    <div class="p-6 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium">سعر الكورس</span>
+                            <span class="text-xl font-black text-slate-900">
+                                {% if course.price > 0 %}
+                                    {{ "%.2f"|format(course.price) }} <span class="text-xs text-brand-600 font-bold">ج.م</span>
+                                {% else %}
+                                    <span class="text-emerald-600 font-bold">مجاني</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-brand-500/20 transition">
+                            عرض التفاصيل والدروس
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-3 text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-3"></i>
+                    <p class="text-sm font-bold text-slate-600">لا توجد كورسات معروضة حالياً.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Examinations Callout -->
+<section class="py-16 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-r from-slate-900 to-brand-950 rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                <div class="lg:col-span-8 space-y-4">
+                    <span class="bg-amber-400 text-slate-950 text-xs font-black px-3.5 py-1.5 rounded-full inline-block">
+                        <i class="fa-solid fa-stopwatch ml-1"></i> بنك الاختبارات الذكي
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-black leading-snug">
+                        اختبر مستواك فورياً في نماذج امتحانات الثانوية العامة
+                    </h2>
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                        لا داعي لانتظار التصحيح اليدوي! خض تجربة الامتحانات الإلكترونية الموقوتة، واحصل على تقرير تفصيلي فور انتهاء الاختبار يوضح الإجابات الصحيحة ونقاط الضعف لديك مع الشرح والتفسير.
+                    </p>
+                    <div class="pt-2">
+                        <a href="{{ url_for('exams_list') }}" class="inline-flex items-center gap-2 px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-bold text-sm sm:text-base shadow-lg transition">
+                            <i class="fa-solid fa-pencil"></i> ابدأ الاختبارات الآن
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 flex justify-center">
+                    <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-brand-500/10 border-2 border-brand-500/30 flex items-center justify-center text-center p-6 backdrop-blur-sm">
+                        <div>
+                            <i class="fa-solid fa-award text-5xl text-amber-400 mb-2"></i>
+                            <span class="block text-2xl font-black text-white">درجات فورية</span>
+                            <span class="text-xs text-slate-400 font-medium">وتحليل شامل لأدائك</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to action -->
+<section class="py-16 bg-slate-50 text-center">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900">
+            جاهز لتحقيق حلمك والتفوق في البكالوريا؟
+        </h2>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+            انضم الآن إلى آلاف الطلاب الذين يعتمدون على منصة "سهلتهالك" لتحقيق أعلى المعدلات في الشهادة الثانوية.
+        </p>
+        <div>
+            <a href="{{ url_for('register') }}" class="px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-base font-black shadow-xl shadow-brand-500/30 inline-block transition transform hover:scale-105">
+                <i class="fa-solid fa-user-plus ml-2"></i> سجل حسابك مجاناً الآن
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

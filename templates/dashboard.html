@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم الطالب - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Welcome Header Banner -->
+    <div class="bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl font-black border border-white/20">
+                {{ user.full_name[0] }}
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl sm:text-3xl font-black">{{ user.full_name }}</h1>
+                    <span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
+                        {{ user.division }}
+                    </span>
+                </div>
+                <p class="text-xs sm:text-sm text-brand-100 mt-1 font-medium">
+                    <i class="fa-solid fa-phone ml-1"></i> {{ user.phone }} | طالب بكالوريا مسجل
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <a href="{{ url_for('wallet_view') }}" class="flex-1 md:flex-none px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-md transition text-center flex items-center justify-center gap-2">
+                <i class="fa-solid fa-wallet"></i>
+                <span>محفظتي: {{ "%.2f"|format(user.wallet_balance) }} ج.م</span>
+            </a>
+            <a href="{{ url_for('courses_list') }}" class="flex-1 md:flex-none px-5 py-3 bg-white text-brand-700 hover:bg-brand-50 rounded-xl text-sm font-bold shadow-md transition text-center">
+                <i class="fa-solid fa-plus ml-1"></i> استكشاف كورسات
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">الكورسات المشترك بها</span>
+                <span class="text-2xl font-black text-slate-900">{{ enrolled_courses|length }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">الاختبارات المكتملة</span>
+                <span class="text-2xl font-black text-slate-900">{{ attempts|length }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">الرصيد المتاح</span>
+                <span class="text-2xl font-black text-slate-900">{{ "%.2f"|format(user.wallet_balance) }} <span class="text-xs font-bold text-slate-500">ج.م</span></span>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">طلبات الشحن المعلقة</span>
+                <span class="text-2xl font-black text-slate-900">{{ pending_topups_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Courses Section -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-graduation-cap text-brand-600"></i>
+                الكورسات والمناهج المفعلة في حسابك
+            </h2>
+            <a href="{{ url_for('courses_list') }}" class="text-xs font-bold text-brand-600 hover:underline">
+                شراء أو تفعيل كورس جديد <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in enrolled_courses %}
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm card-hover flex flex-col justify-between">
+                    <div>
+                        <div class="bg-gradient-to-r from-brand-600 to-indigo-600 p-5 text-white">
+                            <span class="inline-block bg-white/20 text-xs font-bold px-2.5 py-0.5 rounded-full mb-2">
+                                {{ course.subject }}
+                            </span>
+                            <h3 class="font-black text-lg line-clamp-1">{{ course.title }}</h3>
+                        </div>
+                        <div class="p-5 text-xs text-slate-500 leading-relaxed">
+                            {{ course.description or 'منهج متكامل يحتوي على محاضرات فيديو واختبارات وملخصات.' }}
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 border-t border-slate-100 mt-2 flex items-center justify-between">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                            <i class="fa-solid fa-circle-check"></i> اشتراك نشط
+                        </span>
+                        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow transition">
+                            <i class="fa-solid fa-play ml-1"></i> متابعة الدروس
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-3 text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-book text-3xl text-slate-300 mb-2"></i>
+                    <p class="text-sm font-bold text-slate-700 mb-1">أنت غير مشترك في أي كورس حالياً</p>
+                    <p class="text-xs text-slate-500 mb-4">استخدم رصيد محفظتك للاشتراك في المواد والبدء في المذاكرة</p>
+                    <a href="{{ url_for('courses_list') }}" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow transition inline-block">
+                        تصفح الكورسات المتاحة
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Exams History & Performance -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-brand-600"></i>
+                سجل الاختبارات والنتائج
+            </h2>
+            <a href="{{ url_for('exams_list') }}" class="text-xs font-bold text-brand-600 hover:underline">
+                دخول اختبار جديد <i class="fa-solid fa-arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-bold">اسم الاختبار</th>
+                        <th class="py-3 px-4 font-bold">تاريخ الإجراء</th>
+                        <th class="py-3 px-4 font-bold">الدرجة</th>
+                        <th class="py-3 px-4 font-bold">النسبة المئوية</th>
+                        <th class="py-3 px-4 font-bold">الحالة</th>
+                        <th class="py-3 px-4 font-bold text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for attempt in attempts %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900">{{ attempt.exam_title }}</td>
+                            <td class="py-3.5 px-4 text-slate-500">{{ attempt.completed_at or attempt.started_at }}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-800">{{ attempt.score }} / {{ attempt.total_points }}</td>
+                            <td class="py-3.5 px-4 font-black">
+                                <span class="{% if attempt.percentage >= 60 %}text-emerald-600{% else %}text-red-600{% endif %}">
+                                    {{ "%.1f"|format(attempt.percentage) }}%
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if attempt.passed %}
+                                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-check"></i> ناجح
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-xmark"></i> بحاجة لمراجعة
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <a href="{{ url_for('exam_result', attempt_id=attempt.id) }}" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition">
+                                    عرض الإجابات والتفسير
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-slate-400 font-medium">
+                                لم تقم بإجراء أي اختبارات حتى الآن. 
+                                <a href="{{ url_for('exams_list') }}" class="text-brand-600 font-bold hover:underline">اضغط هنا لبدء اختبارك الأول</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

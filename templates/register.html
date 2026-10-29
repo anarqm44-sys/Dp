@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء حساب جديد - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 space-y-6">
+        
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900">إنشاء حساب طالب جديد</h2>
+            <p class="text-xs text-slate-500">سجل بياناتك واستمتع برصيد ترحيبي لتجربة المنصة والكورسات</p>
+        </div>
+
+        <form action="{{ url_for('register') }}" method="POST" class="space-y-4">
+            <div>
+                <label for="full_name" class="block text-xs font-bold text-slate-700 mb-1.5">الاسم الثلاثي أو الرباعي</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-user text-xs"></i>
+                    </span>
+                    <input type="text" id="full_name" name="full_name" required placeholder="مثال: محمد أحمد علي"
+                           class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition">
+                </div>
+            </div>
+
+            <div>
+                <label for="phone" class="block text-xs font-bold text-slate-700 mb-1.5">رقم الهاتف (سيكون اسم الدخول)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-phone text-xs"></i>
+                    </span>
+                    <input type="text" id="phone" name="phone" required placeholder="010XXXXXXXX"
+                           class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition text-left dir-ltr">
+                </div>
+            </div>
+
+            <div>
+                <label for="division" class="block text-xs font-bold text-slate-700 mb-1.5">الشعبة الدراسية</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-graduation-cap text-xs"></i>
+                    </span>
+                    <select id="division" name="division" class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition bg-white">
+                        <option value="علمي علوم">علمي علوم</option>
+                        <option value="علمي رياضة">علمي رياضة</option>
+                        <option value="أدبي">أدبي</option>
+                        <option value="بكالوريا عامة">بكالوريا عامة</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-bold text-slate-700 mb-1.5">كلمة المرور</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-lock text-xs"></i>
+                    </span>
+                    <input type="password" id="password" name="password" required placeholder="••••••••" minlength="4"
+                           class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition">
+                </div>
+            </div>
+
+            <div class="p-3 bg-brand-50 rounded-xl border border-brand-200 text-xs text-brand-800 font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-gift text-brand-600 text-base"></i>
+                <span>هدية تسجيل: ستحصل على 100 ج.م رصيد ترحيبي بمحفظتك لتجربة شراء الكورسات فوراً!</span>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-500/25 transition">
+                <i class="fa-solid fa-user-check ml-2"></i> تأكيد وإنشاء الحساب
+            </button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-100">
+            <p class="text-xs text-slate-600 font-medium">
+                لديك حساب بالفعل؟ 
+                <a href="{{ url_for('login') }}" class="text-brand-600 font-bold hover:underline">سجل دخولك هنا</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

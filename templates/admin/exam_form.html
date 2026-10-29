@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{% if exam %}تعديل الاختبار{% else %}إنشاء اختبار جديد{% endif %} - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_exams') }}" class="hover:text-brand-600">الاختبارات</a> / {% if exam %}تعديل{% else %}إنشاء{% endif %}
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">{% if exam %}تعديل الاختبار{% else %}إنشاء اختبار جديد{% endif %}</h1>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="title" class="block text-xs font-bold text-slate-700 mb-1.5">عنوان الاختبار</label>
+                <input type="text" id="title" name="title" required value="{{ exam.title if exam else '' }}" placeholder="مثال: اختبار الوحدة الأولى في النحو والإملاء"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <div>
+                <label for="course_id" class="block text-xs font-bold text-slate-700 mb-1.5">الكورس التابع له (أو اختبار عام)</label>
+                <select id="course_id" name="course_id" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    <option value="">-- اختبار مستقل عام لجميع الطلاب --</option>
+                    {% for c in courses %}
+                        <option value="{{ c.id }}" {% if exam and exam.course_id == c.id %}selected{% endif %}>
+                            {{ c.title }} ({{ c.subject }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="duration_minutes" class="block text-xs font-bold text-slate-700 mb-1.5">مدة الاختبار (بالدقائق)</label>
+                    <input type="number" min="5" max="240" id="duration_minutes" name="duration_minutes" required value="{{ exam.duration_minutes if exam else 30 }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="passing_score" class="block text-xs font-bold text-slate-700 mb-1.5">نسبة النجاح (%)</label>
+                    <input type="number" min="10" max="100" id="passing_score" name="passing_score" required value="{{ exam.passing_score if exam else 50 }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="block text-xs font-bold text-slate-700 mb-1.5">وصف وتعليمات الاختبار</label>
+                <textarea id="description" name="description" rows="3" placeholder="اكتب نبذة عن أهداف الاختبار وأجزاء المنهج التي يغطيها..."
+                          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-500">{{ exam.description if exam and exam.description else '' }}</textarea>
+            </div>
+
+            <div class="pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_published" value="1" {% if not exam or exam.is_published %}checked{% endif %} class="w-4 h-4 text-brand-600 rounded">
+                    <span class="text-xs sm:text-sm font-bold text-slate-800">نشر الاختبار وجعله متاحاً للحل</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{{ url_for('admin_exams') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    حفظ الاختبار
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

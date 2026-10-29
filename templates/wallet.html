@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}المحفظة الإلكترونية وشحن الرصيد - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">المحفظة الإلكترونية وشحن الرصيد</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">تابع رصيدك الحالي، واشحن محفظتك للاشتراك في المواد والمناهج فوراً</p>
+        </div>
+
+        <a href="{{ url_for('courses_list') }}" class="px-5 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 self-start md:self-auto">
+            <i class="fa-solid fa-cart-shopping"></i> تصفح الكورسات للشراء
+        </a>
+    </div>
+
+    <!-- Top Grid: Balance Card + Recharge Form -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left 5 cols: Current Balance & Payment Info -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Balance Card -->
+            <div class="bg-gradient-to-tr from-emerald-700 via-teal-600 to-emerald-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs uppercase font-bold tracking-wider opacity-80">رصيدك المتاح حالياً</span>
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-4xl sm:text-5xl font-black">{{ "%.2f"|format(user.wallet_balance) }}</span>
+                        <span class="text-lg font-bold opacity-90 mr-1.5">جنيه مصري</span>
+                    </div>
+
+                    <div class="pt-2 border-t border-white/20 text-xs font-semibold text-emerald-100 flex items-center justify-between">
+                        <span>حساب الطالب: {{ user.full_name }}</span>
+                        <span>{{ user.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer Instructions Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-transfer text-brand-600"></i>
+                    بيانات التحويل والشحن
+                </h3>
+                
+                <p class="text-xs text-slate-500 leading-relaxed font-medium">
+                    قم بتحويل المبلغ المطلوب لحساب المنصة الموضح بالأسفل عبر محفظتك الإلكترونية أو تطبيق إنستاباي، ثم سجل طلب الشحن في النموذج المقابل لتتم مراجعته وإضافة الرصيد فوراً.
+                </p>
+
+                <div class="space-y-3 pt-1">
+                    <div class="p-4 rounded-2xl bg-gradient-to-r from-brand-50 to-blue-50 border-2 border-brand-300 flex items-center justify-between shadow-sm">
+                        <div>
+                            <span class="block text-xs font-bold text-brand-900 mb-1">
+                                <i class="fa-solid fa-mobile-screen-button text-brand-600 ml-1"></i> رقم المحفظة للتحويل (فودافون / أورنج / اتصالات كاش):
+                            </span>
+                            <span id="cashNumberText" class="font-mono font-black text-slate-900 text-xl tracking-wider dir-ltr inline-block">01279790505</span>
+                        </div>
+                        <button type="button" onclick="navigator.clipboard.writeText('01279790505'); alert('تم نسخ الرقم: 01279790505 بنجاح!');" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+                            <i class="fa-solid fa-copy"></i> نسخ الرقم
+                        </button>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="block text-[11px] font-bold text-slate-400">إنستاباي InstaPay</span>
+                            <span class="font-mono font-black text-slate-900 text-sm dir-ltr">01279790505</span>
+                        </div>
+                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded-md">InstaPay</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right 7 cols: Top-Up Request Form -->
+        <div class="lg:col-span-7">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                        تسجيل طلب شحن جديد
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">املأ بيانات عملية التحويل بعد إتمامها ليتم تفعيل الرصيد في حسابك</p>
+                </div>
+
+                <form action="{{ url_for('wallet_topup_request') }}" method="POST" class="space-y-4">
+                    <div>
+                        <label for="amount" class="block text-xs font-bold text-slate-700 mb-1.5">المبلغ المحول (بالجنيه)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-coins text-xs"></i>
+                            </span>
+                            <input type="number" id="amount" name="amount" min="10" step="5" required placeholder="مثال: 150"
+                                   class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="payment_method" class="block text-xs font-bold text-slate-700 mb-1.5">طريقة التحويل المستخدمة</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-credit-card text-xs"></i>
+                            </span>
+                            <select id="payment_method" name="payment_method" required
+                                    class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition bg-white">
+                                <option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
+                                <option value="إنستاباي InstaPay">إنستاباي (InstaPay)</option>
+                                <option value="أورنج كاش">أورنج كاش</option>
+                                <option value="اتصالات كاش">اتصالات كاش</option>
+                                <option value="فوري Fawry">فوري (Fawry)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="reference_number" class="block text-xs font-bold text-slate-700 mb-1.5">رقم الهاتف المُحول منه / رقم العملية</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-receipt text-xs"></i>
+                            </span>
+                            <input type="text" id="reference_number" name="reference_number" required placeholder="رقم المحفظة التي قمت بالتحويل منها أو كود العملية"
+                                   class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="notes" class="block text-xs font-bold text-slate-700 mb-1.5">ملاحظات إضافية (اختياري)</label>
+                        <textarea id="notes" name="notes" rows="2" placeholder="أي تفاصيل تود توضيحها..."
+                                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm font-semibold outline-none transition"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/25 transition">
+                        <i class="fa-solid fa-paper-plane ml-1.5"></i> إرسال طلب الشحن للمراجعة
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Transaction History Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
+            <i class="fa-solid fa-clock-rotate-left text-brand-600"></i>
+            سجل حركات ومعاملات المحفظة
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-bold">نوع المعاملة</th>
+                        <th class="py-3 px-4 font-bold">المبلغ</th>
+                        <th class="py-3 px-4 font-bold">طريقة الدفع / المرجع</th>
+                        <th class="py-3 px-4 font-bold">التاريخ</th>
+                        <th class="py-3 px-4 font-bold">الحالة</th>
+                        <th class="py-3 px-4 font-bold">ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for tx in transactions %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900">
+                                {% if tx.transaction_type == 'topup_request' %}
+                                    <span class="text-brand-600"><i class="fa-solid fa-arrow-down-long ml-1"></i> طلب شحن رصيد</span>
+                                {% elif tx.transaction_type == 'course_purchase' %}
+                                    <span class="text-amber-600"><i class="fa-solid fa-bag-shopping ml-1"></i> شراء كورس</span>
+                                {% elif tx.transaction_type == 'admin_adjustment' %}
+                                    <span class="text-purple-600"><i class="fa-solid fa-sliders ml-1"></i> تسوية من الإدارة</span>
+                                {% else %}
+                                    {{ tx.transaction_type }}
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 font-black">
+                                {% if tx.transaction_type in ['topup_request', 'admin_adjustment'] %}
+                                    <span class="text-emerald-600">+{{ "%.2f"|format(tx.amount) }} ج.م</span>
+                                {% else %}
+                                    <span class="text-red-600">-{{ "%.2f"|format(tx.amount) }} ج.م</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-slate-600">
+                                <div>{{ tx.payment_method or 'محفظة داخلية' }}</div>
+                                {% if tx.reference_number %}
+                                    <div class="text-[11px] text-slate-400 font-mono">{{ tx.reference_number }}</div>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-slate-500">{{ tx.created_at }}</td>
+
+                            <td class="py-3.5 px-4">
+                                {% if tx.status == 'approved' %}
+                                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-check"></i> تم الاعتماد
+                                    </span>
+                                {% elif tx.status == 'pending' %}
+                                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-clock"></i> قيد المراجعة
+                                    </span>
+                                {% elif tx.status == 'rejected' %}
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-xmark"></i> مرفوض
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-slate-500 text-xs">{{ tx.notes or '-' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-slate-400 font-medium">
+                                لا توجد معاملات مسجلة في محفظتك حتى الآن.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

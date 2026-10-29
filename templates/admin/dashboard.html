@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة إدارة المنصة - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Admin Top Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div>
+            <div class="inline-flex items-center gap-2 bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                <i class="fa-solid fa-shield-halved"></i> لوحة الإدارة والتحكم الشاملة
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">إدارة منصة سهلتهالك بكالوريا</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">متابعة الطلاب، إدارة المناهج والدروس، بنك الأسئلة، واعتماد شحنات المحفظة</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ url_for('admin_courses') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-book ml-1 text-brand-600"></i> الكورسات
+            </a>
+            <a href="{{ url_for('admin_exams') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-clipboard-question ml-1 text-amber-600"></i> الاختبارات
+            </a>
+            <a href="{{ url_for('admin_wallet_requests') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition relative">
+                <i class="fa-solid fa-wallet ml-1 text-emerald-600"></i> طلبات الشحن
+                {% if pending_topups_count > 0 %}
+                    <span class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
+                        {{ pending_topups_count }}
+                    </span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('admin_students') }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-users ml-1 text-purple-600"></i> الطلاب
+            </a>
+        </div>
+    </div>
+
+    <!-- Overview Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-brand-600 flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">إجمالي الطلاب</span>
+                <span class="text-2xl sm:text-3xl font-black text-slate-900">{{ stats.students_count }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-book-bookmark"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">الكورسات والمناهج</span>
+                <span class="text-2xl sm:text-3xl font-black text-slate-900">{{ stats.courses_count }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">إجمالي الاختبارات</span>
+                <span class="text-2xl sm:text-3xl font-black text-slate-900">{{ stats.exams_count }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <div>
+                <span class="text-xs text-slate-500 font-bold block">طلبات شحن معلقة</span>
+                <span class="text-2xl sm:text-3xl font-black text-purple-600">{{ pending_topups_count }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Pending Requests -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Pending Topups Table (Left 7 cols) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="font-black text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-hourglass-half text-amber-500"></i>
+                    طلبات الشحن بانتظار الاعتماد ({{ pending_requests|length }})
+                </h2>
+                <a href="{{ url_for('admin_wallet_requests') }}" class="text-xs font-bold text-brand-600 hover:underline">
+                    عرض الكل <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500">
+                            <th class="py-2.5 px-3">الطالب</th>
+                            <th class="py-2.5 px-3">المبلغ</th>
+                            <th class="py-2.5 px-3">طريقة التحويل / المرجع</th>
+                            <th class="py-2.5 px-3 text-center">الإجراء السريع</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for req in pending_requests %}
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-3">
+                                    <div class="font-bold text-slate-900">{{ req.full_name }}</div>
+                                    <div class="text-[11px] text-slate-400">{{ req.phone }}</div>
+                                </td>
+                                <td class="py-3 px-3 font-black text-emerald-600 text-sm">
+                                    {{ "%.2f"|format(req.amount) }} ج.م
+                                </td>
+                                <td class="py-3 px-3 text-slate-600">
+                                    <div>{{ req.payment_method }}</div>
+                                    <div class="font-mono text-[11px] text-slate-400">{{ req.reference_number }}</div>
+                                </td>
+                                <td class="py-3 px-3 text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <form action="{{ url_for('admin_wallet_action', tx_id=req.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow transition">
+                                                اعتماد
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('admin_wallet_action', tx_id=req.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-bold text-[11px] transition">
+                                                رفض
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-6 text-slate-400 font-medium">
+                                    لا توجد طلبات شحن معلقة حالياً.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Management Shortcuts (Right 5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                <h2 class="font-black text-slate-900 text-base border-b border-slate-100 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-600"></i> اختصارات سريعة
+                </h2>
+
+                <div class="grid grid-cols-1 gap-2.5">
+                    <a href="{{ url_for('admin_course_create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:bg-brand-50 hover:border-brand-300 transition flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-plus-circle text-brand-600 text-base"></i> إضافة كورس أو مادة دراسية جديدة
+                        </span>
+                        <i class="fa-solid fa-chevron-left text-slate-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('admin_exam_create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:bg-amber-50 hover:border-amber-300 transition flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-file-circle-plus text-amber-600 text-base"></i> إنشاء اختبار إلكتروني جديد
+                        </span>
+                        <i class="fa-solid fa-chevron-left text-slate-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('admin_students') }}" class="p-3.5 rounded-xl border border-slate-200 hover:bg-purple-50 hover:border-purple-300 transition flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-user-gear text-purple-600 text-base"></i> فحص الطلاب وتعديل أرصدة المحافظ
+                        </span>
+                        <i class="fa-solid fa-chevron-left text-slate-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('forum_index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition flex items-center justify-between text-xs font-bold text-slate-800">
+                        <span class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-comments text-blue-600 text-base"></i> الإجابة على استفسارات الطلاب في المنتدى
+                        </span>
+                        <i class="fa-solid fa-chevron-left text-slate-400"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

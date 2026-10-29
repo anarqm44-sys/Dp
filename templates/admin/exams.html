@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة الاختبارات والأسئلة - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-brand-600">لوحة الإدارة</a> / بنك الاختبارات
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">إدارة الاختبارات ونماذج الامتحانات</h1>
+        </div>
+
+        <a href="{{ url_for('admin_exam_create') }}" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> إنشاء اختبار جديد
+        </a>
+    </div>
+
+    <!-- Exams Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">عنوان الاختبار</th>
+                        <th class="py-3 px-4">الكورس التابع له</th>
+                        <th class="py-3 px-4">المدة</th>
+                        <th class="py-3 px-4">نسبة النجاح</th>
+                        <th class="py-3 px-4">الأسئلة</th>
+                        <th class="py-3 px-4">الحالة</th>
+                        <th class="py-3 px-4 text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for exam in exams %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-400">{{ exam.id }}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900">{{ exam.title }}</td>
+                            <td class="py-3.5 px-4">
+                                <span class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                                    {{ exam.course_title or 'اختبار عام' }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-slate-700">
+                                {{ exam.duration_minutes }} دقيقة
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-emerald-600">
+                                {{ exam.passing_score }}%
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-brand-600">
+                                {{ exam.question_count }} أسئلة
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if exam.is_published %}
+                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[11px] font-bold">منشور</span>
+                                {% else %}
+                                    <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[11px] font-bold">مسودة</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <a href="{{ url_for('admin_exam_questions', exam_id=exam.id) }}" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-xs font-bold transition" title="إدارة الأسئلة">
+                                        <i class="fa-solid fa-list-ol ml-1"></i> الأسئلة
+                                    </a>
+                                    <a href="{{ url_for('admin_exam_edit', exam_id=exam.id) }}" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition" title="تعديل">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <form action="{{ url_for('admin_exam_delete', exam_id=exam.id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الاختبار وجميع أسئلته؟');" class="inline">
+                                        <button type="submit" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition" title="حذف">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-8 text-slate-400 font-medium">
+                                لم تتم إضافة أي اختبارات بعد.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

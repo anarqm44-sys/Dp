@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}أسئلة: {{ exam.title }} - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_exams') }}" class="hover:text-brand-600">الاختبارات</a> / بنك الأسئلة
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">أسئلة: {{ exam.title }}</h1>
+        </div>
+
+        <a href="{{ url_for('admin_question_create', exam_id=exam.id) }}" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs sm:text-sm font-black shadow transition flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i> إضافة سؤال جديد
+        </a>
+    </div>
+
+    <!-- Questions Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">نص السؤال</th>
+                        <th class="py-3 px-4">النوع</th>
+                        <th class="py-3 px-4">الإجابة الصحيحة</th>
+                        <th class="py-3 px-4">الدرجات</th>
+                        <th class="py-3 px-4 text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for q in questions %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-400">{{ loop.index }}</td>
+                            <td class="py-3.5 px-4 font-bold text-slate-900 max-w-md">
+                                <div>{{ q.question_text }}</div>
+                                {% if q.explanation %}
+                                    <div class="text-[11px] text-slate-400 font-medium truncate mt-0.5">الشرح: {{ q.explanation }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if q.question_type == 'mcq' %}
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-[11px] font-bold">اختيار من متعدد</span>
+                                {% else %}
+                                    <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[11px] font-bold">صح أو خطأ</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 font-black text-emerald-600">
+                                {{ q.correct_answer }}
+                            </td>
+                            <td class="py-3.5 px-4 font-bold text-slate-700">
+                                {{ q.points }}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <a href="{{ url_for('admin_question_edit', question_id=q.id) }}" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition">
+                                        <i class="fa-solid fa-pen-to-square"></i> تعديل
+                                    </a>
+                                    <form action="{{ url_for('admin_question_delete', question_id=q.id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا السؤال؟');" class="inline">
+                                        <button type="submit" class="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-slate-400 font-medium">
+                                لم تتم إضافة أي أسئلة لهذا الاختبار بعد.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

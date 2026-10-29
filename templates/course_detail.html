@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - سهلتهالك بكالوريا{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+        <a href="{{ url_for('index') }}" class="hover:text-brand-600">الرئيسية</a>
+        <i class="fa-solid fa-angle-left text-[10px]"></i>
+        <a href="{{ url_for('courses_list') }}" class="hover:text-brand-600">الكورسات والمناهج</a>
+        <i class="fa-solid fa-angle-left text-[10px]"></i>
+        <span class="text-slate-800 font-bold truncate">{{ course.title }}</span>
+    </nav>
+
+    <!-- Course Header Card -->
+    <div class="bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-700 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+        <div class="max-w-3xl space-y-4 relative z-10">
+            <div class="flex items-center gap-2">
+                <span class="bg-white/20 backdrop-blur-md text-xs font-bold px-3.5 py-1 rounded-full border border-white/20">
+                    {{ course.subject }}
+                </span>
+                <span class="bg-brand-500/40 text-xs font-medium px-3 py-1 rounded-full">
+                    {{ course.grade }}
+                </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl font-black leading-snug">{{ course.title }}</h1>
+            
+            <p class="text-xs sm:text-sm text-brand-100 leading-relaxed">
+                {{ course.description or 'شرح مبسط ومفصل مع مذكرات وتطبيقات عملية واختبارات لضمان الفهم الكامل لجميع نقاط المنهج.' }}
+            </p>
+
+            <div class="flex flex-wrap items-center gap-6 pt-2 text-xs sm:text-sm font-semibold text-white/90">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-play-circle text-amber-300"></i> {{ lessons|length }} دروس ومحاضرات</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-clipboard-question text-emerald-300"></i> {{ exams|length }} اختبارات تقييمية</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-infinity text-blue-200"></i> وصول مستمر طوال العام الدراسي</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment Status & Wallet Payment Checkout Box -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            
+            <!-- Course Price info -->
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-3xl font-black border border-brand-200 shrink-0">
+                    <i class="fa-solid fa-tag"></i>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-500 font-bold block mb-1">رسوم الاشتراك في الكورس</span>
+                    <span class="text-3xl font-black text-slate-900">
+                        {% if course.price > 0 %}
+                            {{ "%.2f"|format(course.price) }} <span class="text-sm font-bold text-brand-600">ج.م</span>
+                        {% else %}
+                            <span class="text-emerald-600 font-bold">مجاني بالكامل</span>
+                        {% endif %}
+                    </span>
+                    <span class="text-xs text-slate-400 block mt-0.5">وصول شامل لكافة الدروس والملخصات والاختبارات</span>
+                </div>
+            </div>
+
+            <!-- Action buttons depending on state -->
+            <div class="w-full lg:w-auto">
+                {% if is_enrolled %}
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <div class="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-4 py-2.5 rounded-2xl font-bold text-sm">
+                            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                            <span>أنت مشترك ومسجل بالفعل في هذا الكورس</span>
+                        </div>
+                        {% if lessons %}
+                            <a href="{{ url_for('lesson_view', lesson_id=lessons[0].id) }}" class="w-full sm:w-auto px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-sm font-bold shadow-md transition text-center flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> ابدأ الدرس الأول
+                            </a>
+                        {% endif %}
+                    </div>
+                {% elif not session.get('user_id') %}
+                    <a href="{{ url_for('login') }}" class="w-full sm:w-auto px-8 py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-sm font-bold shadow-md transition text-center flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-lock"></i> تسجيل الدخول للاشتراك بالمحفظة
+                    </a>
+                {% else %}
+                    <!-- Free Course -->
+                    {% if course.price == 0 %}
+                        <form action="{{ url_for('enroll_course', course_id=course.id) }}" method="POST">
+                            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-sm font-bold shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check"></i> اشتراك مجاني فوري
+                            </button>
+                        </form>
+                    {% else %}
+                        <!-- Paid Course: Trigger Wallet Checkout Modal -->
+                        <button type="button" onclick="openCheckoutModal()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-black shadow-xl shadow-brand-500/25 transition flex items-center justify-center gap-3 transform hover:-translate-y-0.5">
+                            <i class="fa-solid fa-wallet text-amber-300 text-lg"></i>
+                            <span>الدفع عبر المحفظة والاشتراك الآن ({{ "%.2f"|format(course.price) }} ج.م)</span>
+                        </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Student Wallet Status Bar Preview when not enrolled -->
+        {% if session.get('user_id') and not is_enrolled and course.price > 0 %}
+            <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 font-bold block">رصيد محفظتك الحالي:</span>
+                        <span class="text-base font-black text-slate-900">{{ "%.2f"|format(current_user_wallet) }} ج.م</span>
+                    </div>
+                </div>
+
+                <div class="text-xs font-bold">
+                    {% if current_user_wallet >= course.price %}
+                        <span class="text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> رصيدك كافٍ للشراء (سيتبقى لك {{ "%.2f"|format(current_user_wallet - course.price) }} ج.م)
+                        </span>
+                    {% else %}
+                        <span class="text-red-700 bg-red-100 px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-exclamation"></i> ينقصك {{ "%.2f"|format(course.price - current_user_wallet) }} ج.م لإتمام الشراء
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Course Content Curriculum -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Lessons list (Left / Main col) -->
+        <div class="lg:col-span-8 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-brand-600"></i>
+                    الدروس والمحتوى التعليمي ({{ lessons|length }})
+                </h2>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-sm">
+                {% for lesson in lessons %}
+                    <div class="p-5 flex items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition">
+                        <div class="flex items-start sm:items-center gap-3.5">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                {{ loop.index }}
+                            </span>
+                            <div>
+                                <h3 class="text-sm sm:text-base font-bold text-slate-900">{{ lesson.title }}</h3>
+                                {% if lesson.description %}
+                                    <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ lesson.description }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            {% if is_enrolled or lesson.is_free_preview %}
+                                {% if lesson.is_free_preview and not is_enrolled %}
+                                    <span class="hidden sm:inline-block bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-md border border-emerald-200">
+                                        معاينة مجانية
+                                    </span>
+                                {% endif %}
+                                <a href="{{ url_for('lesson_view', lesson_id=lesson.id) }}" class="px-3.5 py-1.5 bg-brand-50 hover:bg-brand-600 hover:text-white text-brand-700 rounded-lg text-xs font-bold border border-brand-200 transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-play text-[10px]"></i> مشاهدة
+                                </a>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg font-semibold">
+                                    <i class="fa-solid fa-lock text-[11px]"></i> محتوى مقفل
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="p-8 text-center text-slate-400 text-sm font-medium">
+                        لم تتم إضافة أي دروس لهذا الكورس بعد.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar: Exams & Discussion (Right col) -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Course Exams -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                <h3 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <i class="fa-solid fa-clipboard-question text-brand-600"></i>
+                    اختبارات المنهج المرفقة
+                </h3>
+
+                {% for exam in exams %}
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900">{{ exam.title }}</h4>
+                            <span class="text-[11px] text-slate-500 font-medium">
+                                <i class="fa-solid fa-clock ml-1"></i> {{ exam.duration_minutes }} دقيقة
+                            </span>
+                        </div>
+                        <a href="{{ url_for('exam_take', exam_id=exam.id) }}" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-bold shadow transition">
+                            بدء الاختبار
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-xs text-slate-400 py-2">لا توجد اختبارات مرفقة حالياً لهذا الكورس.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Subject Discussion Help -->
+            <div class="bg-brand-50 border border-brand-200 rounded-2xl p-5 space-y-3">
+                <div class="flex items-center gap-2.5 text-brand-900 font-black text-sm">
+                    <i class="fa-solid fa-comments text-brand-600 text-lg"></i>
+                    <span>عندك استفسار عن هذا الكورس؟</span>
+                </div>
+                <p class="text-xs text-brand-800 leading-relaxed font-medium">
+                    يمكنك طرح سؤالك في منتدى المنصة وسيتم الرد عليك ومناقشة السؤال من قبل المعلمين والزملاء.
+                </p>
+                <a href="{{ url_for('forum_index') }}?subject={{ course.subject }}" class="inline-block text-xs font-bold text-brand-700 hover:text-brand-900 underline">
+                    انتقل لمنتدى نقاش {{ course.subject }} <i class="fa-solid fa-arrow-left"></i>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Wallet Checkout Modal -->
+{% if session.get('user_id') and not is_enrolled and course.price > 0 %}
+<div id="checkoutModal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in duration-200 max-h-[92vh] overflow-y-auto">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl font-bold border border-brand-200">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-slate-900 text-lg">تحويل المبلغ إلى المحفظة</h3>
+                    <p class="text-xs text-slate-500">سداد رسوم الاشتراك في: {{ course.title }}</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Super Prominent Official Cash Wallet Banner -->
+        <div class="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-700 rounded-2xl p-5 text-white shadow-xl space-y-3 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-brand-100 flex items-center gap-1.5">
+                    <i class="fa-solid fa-mobile-screen-button text-amber-300"></i> رقم المحفظة المعتمد للتحويل:
+                </span>
+                <span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    فودافون / أورنج / اتصالات كاش / إنستاباي
+                </span>
+            </div>
+
+            <!-- Big Number and Copy Button -->
+            <div class="flex items-center justify-between bg-black/25 backdrop-blur-md p-3.5 rounded-xl border border-white/20">
+                <span id="transferNumber" class="text-2xl sm:text-3xl font-black font-mono tracking-widest text-amber-300 dir-ltr select-all">
+                    01279790505
+                </span>
+                <button type="button" onclick="copyTransferNumber()" class="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black shadow transition flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-copy"></i>
+                    <span id="copyBtnText">نسخ الرقم</span>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between pt-1 text-xs">
+                <span class="text-brand-100 font-medium">المبلغ المطلوب تحويله:</span>
+                <span class="font-black text-white text-base">{{ "%.2f"|format(course.price) }} ج.م</span>
+            </div>
+        </div>
+
+        <!-- Option 1: Direct Transfer Confirmation Form -->
+        <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+            <div class="border-b border-slate-200 pb-2">
+                <h4 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-brand-600"></i>
+                    تأكيد إرسال التحويل لتفعيل الكورس
+                </h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">بعد تحويل {{ "%.2f"|format(course.price) }} ج.م إلى الرقم <strong class="text-slate-800 dir-ltr font-mono">01279790505</strong>، سجل بيانات التحويل لتأكيد التفعيل:</p>
+            </div>
+
+            <form action="{{ url_for('transfer_payment_course', course_id=course.id) }}" method="POST" class="space-y-3">
+                <div>
+                    <label for="sender_phone" class="block text-xs font-bold text-slate-700 mb-1">رقم المحفظة التي قمت بالتحويل منها (رقم هاتفك)</label>
+                    <input type="text" id="sender_phone" name="sender_phone" required value="{{ session.get('user_phone') }}" placeholder="010XXXXXXXX"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500 bg-white dir-ltr text-left">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="payment_method" class="block text-xs font-bold text-slate-700 mb-1">طريقة التحويل</label>
+                        <select id="payment_method" name="payment_method" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            <option value="فودافون كاش">فودافون كاش</option>
+                            <option value="إنستاباي InstaPay">إنستاباي InstaPay</option>
+                            <option value="أورنج كاش">أورنج كاش</option>
+                            <option value="اتصالات كاش">اتصالات كاش</option>
+                            <option value="وي باي WE Pay">وي باي WE Pay</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="reference_number" class="block text-xs font-bold text-slate-700 mb-1">رقم العملية / المرجع (اختياري)</label>
+                        <input type="text" id="reference_number" name="reference_number" placeholder="كود الرسالة أو المعاملة"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>تأكيد التحويل على 01279790505 وتفعيل الكورس</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Option 2: Pay with existing Wallet Balance (if student has enough funds) -->
+        {% if current_user_wallet >= course.price %}
+            <div class="pt-2 border-t border-slate-100">
+                <span class="block text-xs font-bold text-slate-400 text-center mb-2">أو الدفع الفوري من رصيدك المتاح بالمنصة:</span>
+                <form action="{{ url_for('enroll_course', course_id=course.id) }}" method="POST">
+                    <button type="submit" class="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl font-bold text-xs transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bolt text-emerald-600"></i>
+                        <span>خصم فوري من رصيدك المتاح ({{ "%.2f"|format(current_user_wallet) }} ج.م)</span>
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+function openCheckoutModal() {
+    const modal = document.getElementById('checkoutModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeCheckoutModal() {
+    const modal = document.getElementById('checkoutModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function copyTransferNumber() {
+    navigator.clipboard.writeText('01279790505').then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        if (btnText) {
+            btnText.innerText = 'تم النسخ!';
+            setTimeout(() => { btnText.innerText = 'نسخ الرقم'; }, 2000);
+        }
+    });
+}
+</script>
+{% endif %}
+{% endblock %}

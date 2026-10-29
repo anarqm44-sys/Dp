@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{% if course %}تعديل الكورس{% else %}إضافة كورس جديد{% endif %} - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_courses') }}" class="hover:text-brand-600">الكورسات</a> / {% if course %}تعديل{% else %}إضافة{% endif %}
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">{% if course %}تعديل بيانات الكورس{% else %}إضافة كورس جديد{% endif %}</h1>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="title" class="block text-xs font-bold text-slate-700 mb-1.5">عنوان الكورس / اسم المنهج</label>
+                <input type="text" id="title" name="title" required value="{{ course.title if course else '' }}" placeholder="مثال: كورس النحو والبلاغة الشامل للثانوية العامة"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="subject" class="block text-xs font-bold text-slate-700 mb-1.5">المادة الدراسية</label>
+                    <input type="text" id="subject" name="subject" required value="{{ course.subject if course else '' }}" placeholder="مثال: اللغة العربية أو اللغة الإنجليزية أو التاريخ"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="grade" class="block text-xs font-bold text-slate-700 mb-1.5">الصف / المرحلة</label>
+                    <input type="text" id="grade" name="grade" value="{{ course.grade if course else 'الصف الثالث الثانوي (بكالوريا)' }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="price" class="block text-xs font-bold text-slate-700 mb-1.5">سعر الكورس (بالجنيه المصري - 0 للمجاني)</label>
+                    <input type="number" step="0.5" min="0" id="price" name="price" required value="{{ course.price if course else 0 }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="image_url" class="block text-xs font-bold text-slate-700 mb-1.5">رابط صورة الغلاف (اختياري)</label>
+                    <input type="text" id="image_url" name="image_url" value="{{ course.image_url if course and course.image_url else '' }}" placeholder="https://..."
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="block text-xs font-bold text-slate-700 mb-1.5">وصف الكورس ونواتج التعلم</label>
+                <textarea id="description" name="description" rows="4" placeholder="اكتب نبذة شاملة عن محتويات الكورس وما سيتعلمه الطالب..."
+                          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-500">{{ course.description if course and course.description else '' }}</textarea>
+            </div>
+
+            <div class="pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_published" value="1" {% if not course or course.is_published %}checked{% endif %} class="w-4 h-4 text-brand-600 rounded">
+                    <span class="text-xs sm:text-sm font-bold text-slate-800">نشر الكورس وجعله متاحاً للطلاب فوراً</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{{ url_for('admin_courses') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    حفظ البيانات
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

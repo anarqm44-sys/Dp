@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{% if question %}تعديل السؤال{% else %}إضافة سؤال جديد{% endif %} - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_exam_questions', exam_id=exam.id) }}" class="hover:text-brand-600">أسئلة الاختبار</a> / {% if question %}تعديل{% else %}إضافة{% endif %}
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">{% if question %}تعديل السؤال{% else %}إضافة سؤال جديد{% endif %}</h1>
+            <p class="text-xs text-brand-600 font-bold mt-0.5">{{ exam.title }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <form method="POST" class="space-y-4">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="sm:col-span-2">
+                    <label for="question_type" class="block text-xs font-bold text-slate-700 mb-1.5">نوع السؤال</label>
+                    <select id="question_type" name="question_type" onchange="toggleQuestionType(this.value)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        <option value="mcq" {% if not question or question.question_type == 'mcq' %}selected{% endif %}>اختيار من متعدد (MCQ)</option>
+                        <option value="true_false" {% if question and question.question_type == 'true_false' %}selected{% endif %}>صح أم خطأ (True / False)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="points" class="block text-xs font-bold text-slate-700 mb-1.5">درجة السؤال</label>
+                    <input type="number" min="1" max="50" id="points" name="points" required value="{{ question.points if question else 1 }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="question_text" class="block text-xs font-bold text-slate-700 mb-1.5">نص السؤال</label>
+                <textarea id="question_text" name="question_text" rows="3" required placeholder="اكتب نص السؤال هنا..."
+                          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">{{ question.question_text if question else '' }}</textarea>
+            </div>
+
+            <div>
+                <label for="question_image" class="block text-xs font-bold text-slate-700 mb-1.5">رابط صورة للسؤال (اختياري)</label>
+                <input type="text" id="question_image" name="question_image" value="{{ question.question_image if question and question.question_image else '' }}" placeholder="https://..."
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500 text-left dir-ltr">
+            </div>
+
+            <!-- Options Box -->
+            <div id="mcqOptions" class="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <span class="block text-xs font-bold text-slate-700 mb-2">خيارات الإجابة:</span>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">الخيار (أ)</label>
+                    <input type="text" id="option_a" name="option_a" required value="{{ question.option_a if question else '' }}" placeholder="نص الخيار أ"
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">الخيار (ب)</label>
+                    <input type="text" id="option_b" name="option_b" required value="{{ question.option_b if question else '' }}" placeholder="نص الخيار ب"
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div id="cRow">
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">الخيار (ج)</label>
+                    <input type="text" id="option_c" name="option_c" value="{{ question.option_c if question and question.option_c else '' }}" placeholder="نص الخيار ج"
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div id="dRow">
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">الخيار (د)</label>
+                    <input type="text" id="option_d" name="option_d" value="{{ question.option_d if question and question.option_d else '' }}" placeholder="نص الخيار د"
+                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <!-- Correct Answer Selection -->
+            <div>
+                <label for="correct_answer" class="block text-xs font-bold text-slate-700 mb-1.5">الإجابة الصحيحة</label>
+                <select id="correct_answer" name="correct_answer" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    <option value="A" {% if question and question.correct_answer == 'A' %}selected{% endif %}>الخيار الأول (أ) / صح</option>
+                    <option value="B" {% if question and question.correct_answer == 'B' %}selected{% endif %}>الخيار الثاني (ب) / خطأ</option>
+                    <option value="C" id="cOpt" {% if question and question.correct_answer == 'C' %}selected{% endif %}>الخيار الثالث (ج)</option>
+                    <option value="D" id="dOpt" {% if question and question.correct_answer == 'D' %}selected{% endif %}>الخيار الرابع (د)</option>
+                </select>
+            </div>
+
+            <!-- Explanation -->
+            <div>
+                <label for="explanation" class="block text-xs font-bold text-slate-700 mb-1.5">التعليل والشرح العلمي للحل (يظهر للطالب بعد إنهاء الاختبار)</label>
+                <textarea id="explanation" name="explanation" rows="3" placeholder="اشرح لماذا هذه هي الإجابة الصحيحة وما هي القاعدة العلمية المرتبطة بها..."
+                          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-500">{{ question.explanation if question and question.explanation else '' }}</textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{{ url_for('admin_exam_questions', exam_id=exam.id) }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    حفظ السؤال
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function toggleQuestionType(type) {
+    const cRow = document.getElementById('cRow');
+    const dRow = document.getElementById('dRow');
+    const cOpt = document.getElementById('cOpt');
+    const dOpt = document.getElementById('dOpt');
+    const optA = document.getElementById('option_a');
+    const optB = document.getElementById('option_b');
+
+    if (type === 'true_false') {
+        cRow.classList.add('hidden');
+        dRow.classList.add('hidden');
+        cOpt.classList.add('hidden');
+        dOpt.classList.add('hidden');
+        if (!optA.value) optA.value = 'صح';
+        if (!optB.value) optB.value = 'خطأ';
+    } else {
+        cRow.classList.remove('hidden');
+        dRow.classList.remove('hidden');
+        cOpt.classList.remove('hidden');
+        dOpt.classList.remove('hidden');
+    }
+}
+
+// Run on page load
+toggleQuestionType(document.getElementById('question_type').value);
+</script>
+{% endblock %}

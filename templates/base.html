@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}سهلتهالك بكالوريا - المنصة التعليمية المتكاملة للثانوية العامة{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#EFF6FF',
+                            100: '#DBEAFE',
+                            200: '#BFDBFE',
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                            700: '#1D4ED8',
+                            800: '#1E40AF',
+                            900: '#1E3A8A'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen font-cairo">
+
+    <!-- Top Announcement Bar (Optional) -->
+    <div class="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-700 text-white py-2 px-4 text-xs md:text-sm text-center font-medium shadow-inner">
+        <span class="inline-flex items-center gap-2">
+            <i class="fa-solid fa-bullhorn text-amber-300"></i>
+            <span>مرحباً بكم في منصة "سهلتهالك بكالوريا" - دليلك للتفوق في امتحانات الثانوية العامة 2026</span>
+        </span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-8">
+                    <a href="{{ url_for('index') }}" class="flex items-center gap-3 group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                                سهلتهالك <span class="text-brand-600 text-lg font-bold bg-brand-50 px-2.5 py-0.5 rounded-lg border border-brand-200">بكالوريا</span>
+                            </span>
+                            <span class="text-xs text-slate-500 block font-medium">المنصة التعليمية الأولى للثانوية العامة</span>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Nav Links -->
+                    <nav class="hidden md:flex items-center gap-1">
+                        <a href="{{ url_for('index') }}" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-house ml-1.5 text-xs text-slate-400"></i> الرئيسية
+                        </a>
+                        <a href="{{ url_for('courses_list') }}" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-book-open-reader ml-1.5 text-xs text-slate-400"></i> الكورسات والمناهج
+                        </a>
+                        <a href="{{ url_for('exams_list') }}" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-clipboard-question ml-1.5 text-xs text-slate-400"></i> بنك الاختبارات
+                        </a>
+                        <a href="{{ url_for('forum_index') }}" class="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition">
+                            <i class="fa-solid fa-comments ml-1.5 text-xs text-slate-400"></i> منتدى النقاش
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- User Controls -->
+                <div class="flex items-center gap-3">
+                    {% if session.get('user_id') %}
+                        <!-- If Student: Show Wallet -->
+                        {% if session.get('user_role') == 'student' %}
+                            <a href="{{ url_for('wallet_view') }}" class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-2 rounded-xl text-sm font-bold transition shadow-sm">
+                                <i class="fa-solid fa-wallet text-emerald-600"></i>
+                                <span>{{ "%.2f"|format(current_user_wallet if current_user_wallet is defined else 0.0) }} ج.م</span>
+                                <span class="text-xs bg-emerald-200 text-emerald-900 rounded-full px-2 py-0.5 font-semibold">شحن</span>
+                            </a>
+                            <a href="{{ url_for('student_dashboard') }}" class="hidden sm:inline-flex items-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 px-4 py-2 rounded-xl text-sm font-bold transition">
+                                <i class="fa-solid fa-chart-line text-brand-600"></i> لوحة الطالب
+                            </a>
+                        {% elif session.get('user_role') == 'admin' %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-4 py-2 rounded-xl text-sm font-bold transition">
+                                <i class="fa-solid fa-shield-halved text-purple-600"></i> لوحة الإدارة
+                            </a>
+                        {% endif %}
+
+                        <!-- Profile / Logout Dropdown -->
+                        <div class="relative group">
+                            <button type="button" class="flex items-center gap-2.5 p-1.5 pr-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-sm">
+                                    {{ session.get('user_name', 'م')[0] }}
+                                </div>
+                                <span class="text-xs sm:text-sm font-bold text-slate-800 hidden md:inline">{{ session.get('user_name') }}</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+                            </button>
+                            <!-- Dropdown menu -->
+                            <div class="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden group-hover:block hover:block z-50">
+                                <div class="px-4 py-2 border-b border-slate-100">
+                                    <p class="text-xs text-slate-500">مرحباً بك</p>
+                                    <p class="text-sm font-bold text-slate-900 truncate">{{ session.get('user_name') }}</p>
+                                    <p class="text-xs text-brand-600 font-medium">{{ session.get('user_phone') }}</p>
+                                </div>
+                                {% if session.get('user_role') == 'student' %}
+                                    <a href="{{ url_for('student_dashboard') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-solid fa-gauge text-slate-400 w-5"></i> لوحة تحكم الطالب
+                                    </a>
+                                    <a href="{{ url_for('wallet_view') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-solid fa-wallet text-slate-400 w-5"></i> إدارة المحفظة والشحن
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-solid fa-shield-halved text-slate-400 w-5"></i> لوحة إدارة المنصة
+                                    </a>
+                                {% endif %}
+                                <div class="border-t border-slate-100 my-1"></div>
+                                <a href="{{ url_for('logout') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition font-bold">
+                                    <i class="fa-solid fa-right-from-bracket text-red-400 w-5"></i> تسجيل الخروج
+                                </a>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <!-- Guest Auth buttons -->
+                        <a href="{{ url_for('login') }}" class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:text-brand-600 transition">
+                            تسجيل الدخول
+                        </a>
+                        <a href="{{ url_for('register') }}" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold shadow-md shadow-brand-500/25 transition">
+                            <i class="fa-solid fa-user-plus ml-1.5 text-xs"></i> حساب جديد
+                        </a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Navigation bar -->
+        <div class="md:hidden border-t border-slate-100 bg-white px-4 py-2 flex items-center justify-around text-xs font-bold text-slate-600">
+            <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 py-1 hover:text-brand-600">
+                <i class="fa-solid fa-house text-base"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="{{ url_for('courses_list') }}" class="flex flex-col items-center gap-1 py-1 hover:text-brand-600">
+                <i class="fa-solid fa-book-open-reader text-base"></i>
+                <span>الكورسات</span>
+            </a>
+            <a href="{{ url_for('exams_list') }}" class="flex flex-col items-center gap-1 py-1 hover:text-brand-600">
+                <i class="fa-solid fa-clipboard-question text-base"></i>
+                <span>الاختبارات</span>
+            </a>
+            <a href="{{ url_for('forum_index') }}" class="flex flex-col items-center gap-1 py-1 hover:text-brand-600">
+                <i class="fa-solid fa-comments text-base"></i>
+                <span>المنتدى</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <div class="flex items-center justify-between p-4 rounded-xl border text-sm font-bold shadow-sm transition
+                            {% if category == 'success' %}
+                                bg-emerald-50 border-emerald-200 text-emerald-800
+                            {% elif category == 'danger' or category == 'error' %}
+                                bg-red-50 border-red-200 text-red-800
+                            {% elif category == 'warning' %}
+                                bg-amber-50 border-amber-200 text-amber-800
+                            {% else %}
+                                bg-blue-50 border-blue-200 text-blue-800
+                            {% endif %}">
+                            <div class="flex items-center gap-3">
+                                {% if category == 'success' %}
+                                    <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                                {% elif category == 'danger' or category == 'error' %}
+                                    <i class="fa-solid fa-circle-xmark text-red-600 text-lg"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-info text-blue-600 text-lg"></i>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 mt-20 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                
+                <!-- Col 1: About -->
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white text-xl">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <span class="text-2xl font-black text-white">سهلتهالك <span class="text-brand-400 font-bold">بكالوريا</span></span>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-md">
+                        منصة تعليمية ذكية ومتكاملة مصممة خصيصاً لطلاب الثانوية العامة (البكالوريا). نوفر لك أفضل الكورسات، والتدريب على أحدث نماذج الامتحانات، ونظام تقييم فوري يضمن لك الوصول إلى أعلى الدرجات.
+                    </p>
+                    <div class="flex items-center gap-3 pt-2 text-slate-400">
+                        <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-600 hover:text-white flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-600 hover:text-white flex items-center justify-center transition"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-600 hover:text-white flex items-center justify-center transition"><i class="fa-brands fa-telegram"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-brand-600 hover:text-white flex items-center justify-center transition"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Col 2: Quick Links -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold text-base border-b border-slate-800 pb-2">روابط سريعة</h4>
+                    <ul class="space-y-2 text-sm text-slate-400 font-medium">
+                        <li><a href="{{ url_for('courses_list') }}" class="hover:text-brand-400 transition"><i class="fa-solid fa-angle-left ml-2 text-xs"></i> تصفح الكورسات</a></li>
+                        <li><a href="{{ url_for('exams_list') }}" class="hover:text-brand-400 transition"><i class="fa-solid fa-angle-left ml-2 text-xs"></i> بنك الامتحانات الإلكترونية</a></li>
+                        <li><a href="{{ url_for('forum_index') }}" class="hover:text-brand-400 transition"><i class="fa-solid fa-angle-left ml-2 text-xs"></i> منتدى الأسئلة والاستفسارات</a></li>
+                        <li><a href="{{ url_for('wallet_view') }}" class="hover:text-brand-400 transition"><i class="fa-solid fa-angle-left ml-2 text-xs"></i> شحن رصيد المحفظة</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Support -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold text-base border-b border-slate-800 pb-2">الدعم والمساعدة</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-phone text-brand-400 text-xs"></i>
+                            <span dir="ltr">+20 100 000 0000</span>
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-envelope text-brand-400 text-xs"></i>
+                            <span>support@saheltahalk.com</span>
+                        </li>
+                        <li class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-clock text-brand-400 text-xs"></i>
+                            <span>خدمة الدعم الفني: 24/7</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="border-t border-slate-800 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 font-medium gap-4">
+                <p>© 2026 سهلتهالك بكالوريا - جميع الحقوق محفوظة.</p>
+                <div class="flex items-center gap-4">
+                    <span>حساب تجريبي للمدير: 01000000000 (كلمة المرور: admin123)</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

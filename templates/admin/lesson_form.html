@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{% if lesson %}تعديل الدرس{% else %}إضافة درس جديد{% endif %} - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="hover:text-brand-600">دروس الكورس</a> / {% if lesson %}تعديل{% else %}إضافة{% endif %}
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">{% if lesson %}تعديل الدرس{% else %}إضافة درس جديد للكورس{% endif %}</h1>
+            <p class="text-xs text-brand-600 font-bold mt-0.5">{{ course.title }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        <form method="POST" class="space-y-4">
+            <div>
+                <label for="title" class="block text-xs font-bold text-slate-700 mb-1.5">عنوان الدرس</label>
+                <input type="text" id="title" name="title" required value="{{ lesson.title if lesson else '' }}" placeholder="مثال: الوحدة الأولى: المشتقات وأعمال اسم الفاعل"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="lesson_order" class="block text-xs font-bold text-slate-700 mb-1.5">ترتيب الدرس في الكورس</label>
+                    <input type="number" min="1" id="lesson_order" name="lesson_order" required value="{{ lesson.lesson_order if lesson else (next_order or 1) }}"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="pdf_url" class="block text-xs font-bold text-slate-700 mb-1.5">رابط ملف / مذكرة PDF (اختياري)</label>
+                    <input type="text" id="pdf_url" name="pdf_url" value="{{ lesson.pdf_url if lesson and lesson.pdf_url else '' }}" placeholder="https://..."
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div>
+                <label for="video_url" class="block text-xs font-bold text-slate-700 mb-1.5">رابط الفيديو (رابط تضمين يوتيوب، أو فيديو مباشر mp4)</label>
+                <input type="text" id="video_url" name="video_url" value="{{ lesson.video_url if lesson and lesson.video_url else '' }}" placeholder="مثال: https://www.youtube.com/embed/dQw4w9WgXcQ"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-brand-500 text-left dir-ltr">
+                <span class="text-[11px] text-slate-400 mt-1 block">ملاحظة: بالنسبة لفيديوهات يوتيوب، استخدم صيغة التضمين: https://www.youtube.com/embed/VIDEO_ID</span>
+            </div>
+
+            <div>
+                <label for="description" class="block text-xs font-bold text-slate-700 mb-1.5">شرح وملاحظات الدرس</label>
+                <textarea id="description" name="description" rows="3" placeholder="اكتب النقاط الرئيسية التي يغطيها هذا الدرس..."
+                          class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium outline-none focus:ring-2 focus:ring-brand-500">{{ lesson.description if lesson and lesson.description else '' }}</textarea>
+            </div>
+
+            <div class="pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_free_preview" value="1" {% if lesson and lesson.is_free_preview %}checked{% endif %} class="w-4 h-4 text-brand-600 rounded">
+                    <span class="text-xs sm:text-sm font-bold text-slate-800">إتاحة هذا الدرس كمعاينة مجانية (لغير المشتركين)</span>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{{ url_for('admin_course_lessons', course_id=course.id) }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    إلغاء
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    حفظ الدرس
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

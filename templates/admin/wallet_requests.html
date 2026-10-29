@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة طلبات شحن المحفظة - الإدارة{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+            <div class="text-xs font-bold text-slate-500 mb-1">
+                <a href="{{ url_for('admin_dashboard') }}" class="hover:text-brand-600">لوحة الإدارة</a> / طلبات الشحن
+            </div>
+            <h1 class="text-2xl font-black text-slate-900">طلبات شحن محافظ الطلاب</h1>
+            <p class="text-xs text-slate-500 mt-0.5">مراجعة إيصالات التحويل (فودافون كاش، إنستاباي) وتأكيد إضافة الرصيد لحساب الطالب</p>
+        </div>
+    </div>
+
+    <!-- Filter Pills -->
+    <div class="flex flex-wrap items-center gap-2">
+        <a href="{{ url_for('admin_wallet_requests') }}" 
+           class="px-4 py-2 rounded-xl text-xs font-bold transition {% if not filter_status %}bg-brand-600 text-white shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+            الكل ({{ all_count }})
+        </a>
+        <a href="{{ url_for('admin_wallet_requests') }}?status=pending" 
+           class="px-4 py-2 rounded-xl text-xs font-bold transition {% if filter_status == 'pending' %}bg-amber-500 text-slate-950 shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+            بانتظار المراجعة ({{ pending_count }})
+        </a>
+        <a href="{{ url_for('admin_wallet_requests') }}?status=approved" 
+           class="px-4 py-2 rounded-xl text-xs font-bold transition {% if filter_status == 'approved' %}bg-emerald-600 text-white shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+            المعتمدة
+        </a>
+        <a href="{{ url_for('admin_wallet_requests') }}?status=rejected" 
+           class="px-4 py-2 rounded-xl text-xs font-bold transition {% if filter_status == 'rejected' %}bg-red-600 text-white shadow-sm{% else %}bg-white border border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+            المرفوضة
+        </a>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold">
+                        <th class="py-3 px-4">#</th>
+                        <th class="py-3 px-4">الطالب</th>
+                        <th class="py-3 px-4">المبلغ المطلوب</th>
+                        <th class="py-3 px-4">طريقة التحويل</th>
+                        <th class="py-3 px-4">رقم التحويل / المرجع</th>
+                        <th class="py-3 px-4">التاريخ</th>
+                        <th class="py-3 px-4">الحالة</th>
+                        <th class="py-3 px-4 text-center">الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for req in requests %}
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-400">{{ req.id }}</td>
+                            <td class="py-3.5 px-4">
+                                <div class="font-bold text-slate-900">{{ req.full_name }}</div>
+                                <div class="text-xs text-slate-500 font-mono">{{ req.phone }}</div>
+                            </td>
+                            <td class="py-3.5 px-4 font-black text-emerald-600 text-sm">
+                                {{ "%.2f"|format(req.amount) }} ج.م
+                            </td>
+                            <td class="py-3.5 px-4 font-semibold text-slate-700">
+                                {{ req.payment_method }}
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-xs text-slate-800 font-bold">
+                                {{ req.reference_number }}
+                                {% if req.notes %}
+                                    <div class="text-[11px] text-slate-400 font-normal mt-0.5">{{ req.notes }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-500 text-xs">
+                                {{ req.created_at }}
+                            </td>
+                            <td class="py-3.5 px-4">
+                                {% if req.status == 'approved' %}
+                                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-check"></i> تم الاعتماد
+                                    </span>
+                                {% elif req.status == 'pending' %}
+                                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-clock"></i> قيد المراجعة
+                                    </span>
+                                {% elif req.status == 'rejected' %}
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                                        <i class="fa-solid fa-xmark"></i> مرفوض
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                {% if req.status == 'pending' %}
+                                    <div class="flex items-center justify-center gap-2">
+                                        <form action="{{ url_for('admin_wallet_action', tx_id=req.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="approve">
+                                            <button type="submit" onclick="return confirm('تأكيد شحن حساب {{ req.full_name }} بمبلغ {{ req.amount }} ج.م؟')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition">
+                                                <i class="fa-solid fa-check ml-1"></i> اعتماد وإضافة
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('admin_wallet_action', tx_id=req.id) }}" method="POST">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" onclick="return confirm('هل تريد رفض هذا الطلب؟')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition">
+                                                <i class="fa-solid fa-xmark ml-1"></i> رفض
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="text-xs text-slate-400 font-semibold">مكتمل</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-8 text-slate-400 font-medium">
+                                لا توجد طلبات شحن مسجلة في هذا القسم.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
